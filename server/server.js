@@ -1,6 +1,9 @@
+require('./config/config');
+
+const _ = require('lodash');
 const {ObjectID} = require('mongodb');
-let express = require('express');
-let bodyParser = require('body-parser');
+const express = require('express');
+const bodyParser = require('body-parser');
 
 let {mongoose} = require('./db/mongoose.js');
 let {Todo} = require('./models/todo.js');
@@ -8,11 +11,9 @@ let {User} = require('./models/user.js');
 
 
 let app = express();
-const port = process.env.PORT || 3000;
+const port = process.env.PORT;
 
 app.use(bodyParser.json());
-
-
 
 app.post('/todos', (req, res) => {
   let todo = new Todo({
@@ -37,6 +38,10 @@ app.get('/todos', (req, res) => {
 });
 
 
+app.delete('/todos/:id', (req, res) => {
+  console.log('selam');
+});
+
 
 app.get('/todos/:id', (req, res) => {
   let id = req.params.id;
@@ -53,9 +58,20 @@ app.get('/todos/:id', (req, res) => {
 });
 
 
+app.patch('/todos/:id', (req, res) => {
+  let id = req.params.id;
+  let body = _.pick(req.body, ['text', 'completed']);
+
+  if(!ObjectID.isValid(id)) {
+    return res.status(404).send();
+  }
+});
+
+
 app.listen(port, ()=> {
   console.log(`Started on port ${port}`);
 });
+
 
 
 module.exports = {
