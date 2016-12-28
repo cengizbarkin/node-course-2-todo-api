@@ -8,6 +8,7 @@ const bodyParser = require('body-parser');
 let {mongoose} = require('./db/mongoose.js');
 let {Todo} = require('./models/todo.js');
 let {User} = require('./models/user.js');
+let {authenticate} = require('./middleware/authenticate.js');
 
 
 let app = express();
@@ -65,6 +66,22 @@ app.patch('/todos/:id', (req, res) => {
   if(!ObjectID.isValid(id)) {
     return res.status(404).send();
   }
+
+  if(_.isBoolean(body.completed) && body.completed) {
+    body.completedAt = new Date().getTime();
+  } else {
+    body.completed = false;
+    body.completedAt = null;
+  }
+
+  Todo.findByIdAndUpdate(id, {$set: body}, {new: true}).then((todo) => {
+    if(!todo) {
+      return res.status(400).send();
+    }
+    res.send({todo});
+  }).catch((e)=> {
+    res.status(400).send();
+  })
 });
 
 
@@ -81,6 +98,12 @@ app.post('/users', (req, res) => {
   });
 });
 
+
+
+
+app.get('/users/me', authenticate, (req, res) => {
+  res.send(req.user);
+});
 
 app.listen(port, ()=> {
   console.log(`Started on port ${port}`);
