@@ -13,7 +13,6 @@ const todos = [{
   text: 'Second test to do'
 }];
 
-
 beforeEach((done)=> {
   Todo.remove({}).then(() => {
     return Todo.insertMany(todos);
@@ -58,7 +57,6 @@ describe('POST /todos', () => {
         }).catch((err) => done(err));
       });
   });
-
 });
 
 describe('GET /todos', ()=>{
